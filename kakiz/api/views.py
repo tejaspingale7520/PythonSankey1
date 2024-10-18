@@ -56,7 +56,7 @@ def update_user(request, pk):
 
 
 
-@api_view(['DELETE'])
+@api_view(['DELETE'])  ##for delete user
 def delete_user(request, pk):
     try:
         user = User.objects.get(pk=pk)
@@ -65,3 +65,7 @@ def delete_user(request, pk):
 
     user.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
