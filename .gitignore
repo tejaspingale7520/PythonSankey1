@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Django
+*.log
+db.sqlite3
+media/
+staticfiles/
+.env
+
+# Environment variables
+.env.local
+.env.*.local
+
+# Virtual Environment
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Coverage reports
+.coverage
+coverage.xml
+*.cover
+.hypothesis/
+.tox/
+
+# Miscellaneous
+*.DS_Store
+*.db
+*.sqlite3
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Docker
+docker-compose.override.yml
