@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
 import json
 from .models import Booking
-from Trip_service.Trip.models import Trip
+from Trip.models import Trip
 import requests
 # @csrf_exempt
 # def booking_listing(request):

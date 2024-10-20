@@ -1,8 +1,6 @@
 from django.shortcuts import render
-
 from django.http import JsonResponse
 from .models import Route
-from .serializers import RouteSerializer
 import json
 from django.core.exceptions import ValidationError
 from django.views.decorators.csrf import csrf_exempt
@@ -27,8 +25,14 @@ def route_list(request):
         if sort_by in ['route_origin', 'route_destination', 'route_name','user_id' ,'Route_id']:
             routes = routes.order_by(sort_by)
         
-        serializer = RouteSerializer(routes, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        
+        data = [ {"Route_id": route.Route_id,
+        "user_id": route.user_id,
+        "route_name": route.route_name,
+        "route_origin": route.route_origin,
+        "route_destination": route.route_destination,
+        "route_stops": route.route_stops} for route in routes]
+        return JsonResponse(data, safe=False)
     
     elif request.method == 'POST':
         try:
@@ -41,6 +45,7 @@ def route_list(request):
                 route_destination=data['route_destination'],
                 route_stops=data['route_stops']
             )
+            
             route.full_clean()
             route.save()
             return JsonResponse({"record inserted for id": route.Route_id}, status=201)
@@ -60,12 +65,12 @@ def route_details(request,pk):
 
         return JsonResponse({
             "Route_id": route.Route_id,
-            "user_id": str(route.user_id),
+            "user_id": route.user_id,
             "route_name": route.route_name,
             "route_origin": route.route_origin,
             "route_destination": route.route_destination,
             "route_stops": route.route_stops
-        },safe=False, status=200)
+        }, status=200)
     
     elif request.method =='PUT' or request.method== 'PATCH':
         try:
@@ -73,7 +78,7 @@ def route_details(request,pk):
 
             # for key, value in data.items():
             #     setattr(route, key, value)
-            route=data.get('Route_id',route.Route_id)
+            route.Route_id=data.get('Route_id',route.Route_id)
             route.user_id=data.get('user_id',str(route.user_id))
             route.route_name=data.get('route_name',route.route_name)
             route.route_origin=data.get('route_origin',route.route_origin)
@@ -83,7 +88,7 @@ def route_details(request,pk):
             route.full_clean()
             route.save()
 
-            return JsonResponse({"id": route.Route_id})
+            return JsonResponse({"id": route.Route_id},status=200)
         except ValidationError as ve:
             return JsonResponse({"errors": ve.messages}, status=400)
         except Exception as e:

@@ -10,7 +10,7 @@ def validate_ticket_id(value):
 
 class Booking(models.Model):
     ticket_id = models.CharField(primary_key=True, max_length=10, validators=[validate_ticket_id])
-    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+    trip_id = models.ForeignKey(Trip, on_delete=models.CASCADE)
     traveller_name = models.CharField(max_length=255)
     traveller_number = models.CharField(
         max_length=10,

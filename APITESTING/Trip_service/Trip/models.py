@@ -20,7 +20,7 @@ class Trip(models.Model):
     driver_name=models.CharField(max_length=255)
 
     def __str__(self):
-        return self.trip_id
+        return self.driver_name
     
     # def save(self,trip_id):
     #     if not self.trip_id.startswith('TP') or len(self.trip_id)!=10:
