@@ -31,7 +31,7 @@ def route_list(request):
         "route_name": route.route_name,
         "route_origin": route.route_origin,
         "route_destination": route.route_destination,
-        "route_stops": route.route_stops} for route in routes]
+         "route_stops": route.route_stops if route.route_stops else []}for route in routes]
         return JsonResponse(data, safe=False)
     
     elif request.method == 'POST':

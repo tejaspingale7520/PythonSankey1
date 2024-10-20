@@ -21,7 +21,7 @@ class Route(models.Model):
     route_name=models.CharField(max_length=255)
     route_origin=models.CharField(max_length=255)
     route_destination=models.CharField(max_length=255)
-    route_stops=models.TextField(blank=True)
+    route_stops = models.JSONField(default=list, blank=True)
 
 
     def __str__(self):
