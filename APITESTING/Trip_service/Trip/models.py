@@ -10,13 +10,14 @@ def validate_trip_id(value):
 
     if not re.match(r'^TP\d{8}$', value):
       raise ValidationError('ID must start with "TP" and be followed by 8 digits')
+    return value
 
 # Create your models here.
 class Trip(models.Model):
     trip_id=models.CharField(primary_key=True,max_length=10,validators=[validate_trip_id])
     user_id=models.IntegerField(unique=True)
     vehicle_id=models.IntegerField()
-    Route_id=models.ForeignKey(Route, on_delete=models.CASCADE)
+    Route_id=models.ForeignKey(Route, on_delete=models.CASCADE,to_field='Route_id')
     driver_name=models.CharField(max_length=255)
 
     def __str__(self):

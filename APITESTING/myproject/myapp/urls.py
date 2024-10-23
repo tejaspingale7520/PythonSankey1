@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import get_book,update_book,create_book,delete_book,get_books,search
+from .views import get_book,update_book,create_book,delete_book,get_books,search,access_day_night_times
 from django.views.decorators.csrf import csrf_exempt
 
 urlpatterns = [
@@ -9,4 +9,6 @@ urlpatterns = [
     path('books/update/<int:pk>/',csrf_exempt(update_book),name='update_book'),
     path('books/delete/<int:pk>/',csrf_exempt(delete_book),name='delete_book'),
     path('books/search/',csrf_exempt(search),name='search book'),
+    path('caltime/',access_day_night_times,name='fetch daynight time'),
+
 ]

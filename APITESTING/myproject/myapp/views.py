@@ -84,7 +84,85 @@ def search(request):
     book_info=[{'title':book.title,'author':book.author, 'published_date': book.published_date} for book in books]
     return JsonResponse(book_info,safe=False)
 
-    
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
+import json
+from dateutil import parser
+
+@csrf_exempt
+def access_day_night_times(request):
+    if request.method == 'POST':
+        try:
+            # Load the incoming JSON data
+            data = json.loads(request.body)
+            
+            # Use dateutil.parser to parse the dates
+            start_date = parser.parse(data['start_date'])
+            end_date = parser.parse(data['end_date'])
+ 
+            night_times = []
+            day_times = []
+ 
+            current_date = start_date
+ 
+            while current_date < end_date:
+                night_start = current_date.replace(hour=21, minute=0, second=0)
+                night_end = current_date.replace(hour=6, minute=0, second=0) + timezone.timedelta(days=1)
+ 
+                if night_end > end_date:
+                    night_end = end_date
+
+                night_times.append({
+                    "start_date": night_start.isoformat(),
+                    "end_date": night_end.isoformat()
+                })
+
+                day_start = night_end
+                day_end = day_start + timezone.timedelta(days=1)
+
+                if day_end > end_date:
+                    day_end = end_date
+
+                day_times.append({
+                    "start_date": day_start.isoformat(),
+                    "end_date": day_end.isoformat()
+                })
+
+                current_date += timezone.timedelta(days=1)
+ 
+            return JsonResponse({
+                "night_time": night_times,
+                "day_time": day_times
+            })
+ 
+        except (json.JSONDecodeError, KeyError, ValueError):
+            return JsonResponse({"error": "Invalid request data"}, status=400)
+ 
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+
+#input json
+# {
+   
+#     "start_date": "2023-10-22T15:30:00",
+#     "end_date": "2023-10-23T15:30:00"
+# }
+
+##output response
+# {
+#     "night_time": [
+#         {
+#             "start_date": "2023-10-22T21:00:00",
+#             "end_date": "2023-10-23T06:00:00"
+#         }
+#     ],
+#     "day_time": [
+#         {
+#             "start_date": "2023-10-23T06:00:00",
+#             "end_date": "2023-10-23T15:30:00"
+#         }
+#     ]
+# }
     
 
 

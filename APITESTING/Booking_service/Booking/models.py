@@ -1,16 +1,20 @@
 from django.db import models
+
+# Create your models here.
 import re
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, EmailValidator
-from Trip.models import Trip
+
 
 def validate_ticket_id(value):
     if not re.match(r'^TK\d{8}$', value):
         raise ValidationError('ID must start with "TK" and be followed by 8 digits')
+    return value
+
 
 class Booking(models.Model):
     ticket_id = models.CharField(primary_key=True, max_length=10, validators=[validate_ticket_id])
-    trip_id = models.ForeignKey(Trip, on_delete=models.CASCADE)
+    trip_id = models.CharField(max_length=10)  # Updated for required max_length
     traveller_name = models.CharField(max_length=255)
     traveller_number = models.CharField(
         max_length=10,

@@ -5,12 +5,19 @@ import json
 from django.core.exceptions import ValidationError
 from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
+from django.core.paginator import Paginator
+from django.contrib.auth.models import User
 
 
 @csrf_exempt
 def route_list(request):
     if request.method == "GET":
-        routes = Route.objects.all()
+        routes = Route.objects.all()#receives data from model
+
+        # paginator=Paginator(routes,10)#setting limits to get 2 records
+        # page_number=request.GET.get('page')#getting page number from url  default is 1
+        # routes_data=paginator.get_page(page_number)# depending upon page number which data will come
+
         
         route_name_query = request.GET.get('route_name', None)
         if route_name_query:
@@ -31,7 +38,8 @@ def route_list(request):
         "route_name": route.route_name,
         "route_origin": route.route_origin,
         "route_destination": route.route_destination,
-         "route_stops": route.route_stops if route.route_stops else []}for route in routes]
+        "route_stops": route.route_stops if route.route_stops else []}for route in routes]
+        
         return JsonResponse(data, safe=False)
     
     elif request.method == 'POST':
@@ -100,3 +108,64 @@ def route_details(request,pk):
         
         route.delete()
         return JsonResponse({'message': "Route deleted"}, status=200)
+    
+
+
+
+from dateutil import parser
+import json
+from django.utils import timezone
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def access_day_night_times(request):
+    if request.method == 'POST':
+        try:
+            # Load the incoming JSON data
+            data = json.loads(request.body)
+            
+            # Use dateutil.parser to parse the dates
+            start_date = parser.parse(data['start_date'])
+            end_date = parser.parse(data['end_date'])
+ 
+            night_times = []
+            day_times = []
+ 
+            current_date = start_date
+ 
+            while current_date < end_date:
+                night_start = current_date.replace(hour=21, minute=0, second=0)
+                night_end = current_date.replace(hour=6, minute=0, second=0) + timezone.timedelta(days=1)
+ 
+                if night_end > end_date:
+                    night_end = end_date
+
+                night_times.append({
+                    "start_date": night_start.isoformat(),
+                    "end_date": night_end.isoformat()
+                })
+
+                day_start = night_end
+                day_end = day_start + timezone.timedelta(days=1)
+
+                if day_end > end_date:
+                    day_end = end_date
+
+                day_times.append({
+                    "start_date": day_start.isoformat(),
+                    "end_date": day_end.isoformat()
+                })
+
+                current_date += timezone.timedelta(days=1)
+ 
+            return JsonResponse({
+                "night_time": night_times,
+                "day_time": day_times
+            })
+ 
+        except (json.JSONDecodeError, KeyError, ValueError):
+            return JsonResponse({"error": "Invalid request data"}, status=400)
+ 
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+

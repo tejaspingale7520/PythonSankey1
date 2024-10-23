@@ -4,3 +4,6 @@ from .models import Booking
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
     list_display=['ticket_id','trip_id','traveller_name','traveller_number','ticket_cost','traveller_email']
+
+
+# admin.site.register(Booking)
