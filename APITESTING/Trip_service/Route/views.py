@@ -112,60 +112,133 @@ def route_details(request,pk):
 
 
 
-from dateutil import parser
-import json
-from django.utils import timezone
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 
+
+# from django.http import JsonResponse
+# from dateutil import parser
+# from django.utils import timezone
+# import json
+# @csrf_exempt
+# def access_day_night_times(request):
+#     if request.method == 'POST':
+#         try:
+#             # Load the incoming JSON data
+#             data = json.loads(request.body)
+            
+#             # Use dateutil.parser to parse the dates
+#             start_date = parser.parse(data['start_date'])
+#             end_date = parser.parse(data['end_date'])
+            
+#             # Get dynamic night start and end times
+#             night_start_hour = data.get('night_start_hour', 21)
+#             night_end_hour = data.get('night_end_hour', 6)
+            
+#             night_times = []
+#             day_times = []
+#             current_date = start_date
+
+#             while current_date < end_date:
+#                 night_start = current_date.replace(hour=night_start_hour, minute=0, second=0)
+#                 night_end = current_date.replace(hour=night_end_hour, minute=0, second=0)
+#                 if night_start_hour > night_end_hour:
+#                     night_end += timezone.timedelta(days=1)
+
+#                 if night_end > end_date:
+#                     night_end = end_date
+                
+#                 if night_start > end_date:
+#                     night_start = end_date
+                
+#                 night_times.append({
+#                     "start_date": night_start.isoformat(),
+#                     "end_date": night_end.isoformat()
+#                 })
+
+#                 day_start = night_end
+#                 day_end = day_start + timezone.timedelta(hours=(24 - (night_end_hour - night_start_hour)))
+                
+#                 if day_end > end_date:
+#                     day_end = end_date
+
+#                 if day_start > end_date:
+#                     day_start = end_date
+                
+#                 day_times.append({
+#                     "start_date": day_start.isoformat(),
+#                     "end_date": day_end.isoformat()
+#                 })
+
+#                 current_date += timezone.timedelta(days=1)
+
+#             return JsonResponse({
+#                 "night_time": night_times,
+#                 "day_time": day_times
+#             })
+        
+#         except (json.JSONDecodeError, KeyError, ValueError) as e:
+#             return JsonResponse({"error": f"Invalid request data: {str(e)}"}, status=400)
+
+#     return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+from django.http import JsonResponse
+from dateutil import parser
+from django.utils import timezone
+import json
 @csrf_exempt
 def access_day_night_times(request):
     if request.method == 'POST':
         try:
             # Load the incoming JSON data
             data = json.loads(request.body)
-            
-            # Use dateutil.parser to parse the dates
+
+            # Parse start and end dates
             start_date = parser.parse(data['start_date'])
             end_date = parser.parse(data['end_date'])
- 
+
+            # Get dynamic night start and end times
+            night_start_hour = data.get('night_start_hour', 21)
+            night_end_hour = data.get('night_end_hour', 6)
+
             night_times = []
             day_times = []
- 
             current_date = start_date
- 
+
             while current_date < end_date:
-                night_start = current_date.replace(hour=21, minute=0, second=0)
-                night_end = current_date.replace(hour=6, minute=0, second=0) + timezone.timedelta(days=1)
- 
+                night_start = current_date.replace(hour=night_start_hour, minute=0, second=0)
+                night_end = current_date.replace(hour=night_end_hour, minute=0, second=0)
+                if night_start_hour > night_end_hour:
+                    night_end += timezone.timedelta(days=1)
+                
                 if night_end > end_date:
                     night_end = end_date
-
+                
                 night_times.append({
                     "start_date": night_start.isoformat(),
                     "end_date": night_end.isoformat()
                 })
 
-                day_start = night_end
-                day_end = day_start + timezone.timedelta(days=1)
-
+                day_start = current_date.replace(hour=night_end_hour, minute=0, second=0)
+                day_end = current_date.replace(hour=night_start_hour, minute=0, second=0)
+                if night_start_hour > night_end_hour:
+                    day_end += timezone.timedelta(days=1)
+                
                 if day_end > end_date:
                     day_end = end_date
-
+                
                 day_times.append({
                     "start_date": day_start.isoformat(),
                     "end_date": day_end.isoformat()
                 })
 
                 current_date += timezone.timedelta(days=1)
- 
+
             return JsonResponse({
                 "night_time": night_times,
                 "day_time": day_times
             })
- 
-        except (json.JSONDecodeError, KeyError, ValueError):
-            return JsonResponse({"error": "Invalid request data"}, status=400)
- 
-    return JsonResponse({"error": "Method not allowed"}, status=405)
 
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+              return JsonResponse({"error": f"Invalid request data: {str(e)}"}, status=400)
+
+    return JsonResponse({"error": "Method not allowed"}, status=405)

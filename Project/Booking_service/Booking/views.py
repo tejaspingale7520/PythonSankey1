@@ -1,4 +1,3 @@
-from django.shortcuts import render
 import json
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -15,12 +14,33 @@ from django.core.exceptions import ValidationError
 
 
 @csrf_exempt
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def booking_add(request):
+
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        # Fetch trip details from TripService
+        trip_service_url = f'http://localhost:8000/trip/trip-details/{data['trip_id']}/'
+       
+        trip_response = requests.get(trip_service_url)
+        if trip_response.status_code == 200:
+            # Trip exists, proceed with booking
+            serializer = BookingSerializer(data=data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error": "Trip not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+@csrf_exempt
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def booking_listing(request):
     if request.method == "GET":
         # Fetch trips from the TripService
-        trip_service_url = 'http://127.0.0.1:8000/trip/trip-listings/' 
+        trip_service_url = 'http://127.0.0.1:8000/api/trip-listings/' 
        
         response = requests.get(trip_service_url)
         if response.status_code == 200:
@@ -79,24 +99,7 @@ def booking_listing(request):
             return paginator.get_paginated_response({"data":data})
         else:
             return Response({'error': 'Unable to fetch trips'}, status=response.status_code)
-
-    elif request.method == 'POST':
-        data = json.loads(request.body)
-        # Fetch trip details from TripService
-        trip_service_url = f'http://localhost:8000/trip/trip-details/{data['trip_id']}/'
-       
-        trip_response = requests.get(trip_service_url)
-        if trip_response.status_code == 200:
-            # Trip exists, proceed with booking
-            serializer = BookingSerializer(data=data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({"error": "Trip not found"}, status=status.HTTP_404_NOT_FOUND)
         
-
 @csrf_exempt
 @permission_classes([IsAuthenticated])
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
@@ -106,7 +109,7 @@ def booking_detail(request, pk):
     except Booking.DoesNotExist:
         return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
     
-    trip_service_url = f'http://localhost:8000/trip/trip-details/{booking.trip_id}/' 
+    trip_service_url = f'http://localhost:8000/api/trip-details/{booking.trip_id}/' 
 
     if request.method == "GET":
         # Fetch trip details from TripService
@@ -141,6 +144,3 @@ def booking_detail(request, pk):
     elif request.method == "DELETE":
         booking.delete()
         return Response({'message': "Booking deleted"}, status=status.HTTP_200_OK)
-
-
-
