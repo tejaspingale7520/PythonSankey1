@@ -114,7 +114,7 @@ def route_details(request,pk):
 
 
 
-# from django.http import JsonResponse
+# from django.ht Jsonttp imporResponse
 # from dateutil import parser
 # from django.utils import timezone
 # import json

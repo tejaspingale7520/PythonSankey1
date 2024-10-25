@@ -3,7 +3,8 @@ from django.core.exceptions import ValidationError
 import json
 # from Route.models import Route
 from .models import Trip
-
+from Route.models import Route
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
            
 @csrf_exempt
@@ -13,15 +14,17 @@ def trip_add(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
+            # Fetch the Route instance
+            route = get_object_or_404(Route, Route_id=data.get('Route_id'))
             trip = Trip.objects.create(
                 trip_id=data.get('trip_id'),
                 user_id=data.get('user_id'),
                 vehicle_id=data.get('vehicle_id'),
-                Route_id=data.get('Route_id'),
+                Route_id=route,
                 driver_name=data.get('driver_name')
             )
             trip.save()
-            return JsonResponse({"id": trip.id}, status=201)
+            return JsonResponse({"id": trip.trip_id}, status=201)
         except ValidationError as ve:
             return JsonResponse({"error": str(ve)}, status=400)
         except json.JSONDecodeError:

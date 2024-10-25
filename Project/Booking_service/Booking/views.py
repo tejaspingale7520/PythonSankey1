@@ -21,7 +21,7 @@ def booking_add(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         # Fetch trip details from TripService
-        trip_service_url = f'http://localhost:8000/trip/trip-details/{data['trip_id']}/'
+        trip_service_url = f'http://localhost:8000/api/trip-details/{data['trip_id']}/'
        
         trip_response = requests.get(trip_service_url)
         if trip_response.status_code == 200:
@@ -76,7 +76,7 @@ def booking_listing(request):
             # paginated_data=paginator.paginate_queryset(bookings,request)
 
             paginator = PageNumberPagination()      #according to page number nexr>> previous<<<
-            paginator.page_size=5
+            paginator.page_size=2
             paginated_data=paginator.paginate_queryset(bookings,request)
            
             # Create a dictionary for trips for efficient lookup
