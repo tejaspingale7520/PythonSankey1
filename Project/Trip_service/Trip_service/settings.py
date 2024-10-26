@@ -53,6 +53,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'Trip_service.urls'
 
+BASIC_AUTH_USERNAME = 'tejas'
+BASIC_AUTH_PASSWORD = 'superuser'
+
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
